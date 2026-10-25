@@ -46,3 +46,7 @@ A single deployable package: one Express process serves both the JSON API and th
 ## Deploy
 
 See `README.md`. Render needs `npm install --include=dev` for the build step because Vite is a devDependency (`render.yaml` does this). `render.yaml` also generates `BETTER_AUTH_SECRET`; on other hosts set it and `BETTER_AUTH_URL` yourself.
+
+- The repo is `origin` = `https://github.com/manishsant1/airlinebooking.git`, branch `main`. On this Windows machine Git's default OpenSSL can't find the CA store, so push with `git -c http.sslBackend=schannel push`. Don't read stored Git credentials directly; plain `git push` uses them itself.
+- Production: Render web service `airline-booking` (id `srv-dbf3jp0n74is73be1neg`, region `ohio`, free plan) at https://airline-booking-2j5h.onrender.com, auto-deploying from `main`. It uses the same Neon database as local. Render's API refuses to create a service until the workspace has a card on file. Pass `DATABASE_URL` from `.env` to Render without printing it.
+- Against production, Better Auth rate-limits sign-ups; `scripts/smoke.mjs` waits and retries on 429.

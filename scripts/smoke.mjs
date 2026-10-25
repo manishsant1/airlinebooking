@@ -41,7 +41,13 @@ const booked = []; // { id, user } to cancel at the end
 
 async function newUser(label) {
   const u = makeUser(label);
-  const up = await u.call('/auth/sign-up/email', { method: 'POST', body: { name: 'Smoke ' + label, email: u.email, password } });
+  // Production rate-limits sign-ups to a few per 10 seconds; wait the window out rather than fail.
+  let up;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    up = await u.call('/auth/sign-up/email', { method: 'POST', body: { name: 'Smoke ' + label, email: u.email, password } });
+    if (up.status !== 429) break;
+    await new Promise((r) => setTimeout(r, 11000));
+  }
   assert.equal(up.status, 200, JSON.stringify(up.data));
   users.push(u);
   return u;
